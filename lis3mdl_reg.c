@@ -157,7 +157,7 @@ int32_t lis3mdl_data_rate_set(const stmdev_ctx_t *ctx, lis3mdl_om_t val)
 
   if (ret == 0)
   {
-    ctrl_reg1.om = (uint8_t)val;
+    ctrl_reg1.om = (uint8_t)val & 0x3FU;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG1, (uint8_t *)&ctrl_reg1, 1);
   }
 
@@ -348,7 +348,7 @@ int32_t lis3mdl_temperature_meas_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    ctrl_reg1.temp_en = val;
+    ctrl_reg1.temp_en = val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG1, (uint8_t *)&ctrl_reg1, 1);
   }
 
@@ -394,7 +394,7 @@ int32_t lis3mdl_full_scale_set(const stmdev_ctx_t *ctx, lis3mdl_fs_t val)
 
   if (ret == 0)
   {
-    ctrl_reg2.fs = (uint8_t)val;
+    ctrl_reg2.fs = (uint8_t)val & 0x03U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG2, (uint8_t *)&ctrl_reg2, 1);
   }
 
@@ -462,7 +462,7 @@ int32_t lis3mdl_operating_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    ctrl_reg3.md = (uint8_t)val;
+    ctrl_reg3.md = (uint8_t)val & 0x03U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG3, (uint8_t *)&ctrl_reg3, 1);
   }
 
@@ -526,7 +526,7 @@ int32_t lis3mdl_fast_low_power_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    ctrl_reg3.lp = val;
+    ctrl_reg3.lp = val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG3, (uint8_t *)&ctrl_reg3, 1);
   }
 
@@ -572,7 +572,7 @@ int32_t lis3mdl_block_data_update_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    ctrl_reg5.bdu = val;
+    ctrl_reg5.bdu = val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG5, (uint8_t *)&ctrl_reg5, 1);
   }
 
@@ -619,7 +619,7 @@ int32_t lis3mdl_high_part_cycle_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    ctrl_reg5.fast_read = val;
+    ctrl_reg5.fast_read = val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG5, (uint8_t *)&ctrl_reg5, 1);
   }
 
@@ -711,12 +711,9 @@ int32_t lis3mdl_magnetic_raw_get(const stmdev_ctx_t *ctx, int16_t *val)
 
   if (ret != 0) { return ret; }
 
-  val[0] = (int16_t)buff[1];
-  val[0] = (val[0] * 256) + (int16_t)buff[0];
-  val[1] = (int16_t)buff[3];
-  val[1] = (val[1] * 256) + (int16_t)buff[2];
-  val[2] = (int16_t)buff[5];
-  val[2] = (val[2] * 256) + (int16_t)buff[4];
+  val[0] = (int16_t)(buff[0] | ((uint16_t)buff[1] << 8));
+  val[1] = (int16_t)(buff[2] | ((uint16_t)buff[3] << 8));
+  val[2] = (int16_t)(buff[4] | ((uint16_t)buff[5] << 8));
 
   return ret;
 }
@@ -737,8 +734,7 @@ int32_t lis3mdl_temperature_raw_get(const stmdev_ctx_t *ctx, int16_t *val)
 
   if (ret != 0) { return ret; }
 
-  *val = (int16_t)buff[1];
-  *val = (*val * 256) + (int16_t)buff[0];
+  *val = (int16_t)(buff[0] | ((uint16_t)buff[1] << 8));
 
   return ret;
 }
@@ -788,7 +784,7 @@ int32_t lis3mdl_self_test_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    ctrl_reg1.st = (uint8_t)val;
+    ctrl_reg1.st = (uint8_t)val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG1, (uint8_t *)&ctrl_reg1, 1);
   }
 
@@ -834,7 +830,7 @@ int32_t lis3mdl_reset_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    ctrl_reg2.soft_rst = val;
+    ctrl_reg2.soft_rst = val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG2, (uint8_t *)&ctrl_reg2, 1);
   }
 
@@ -880,7 +876,7 @@ int32_t lis3mdl_boot_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    ctrl_reg2.reboot = val;
+    ctrl_reg2.reboot = val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG2, (uint8_t *)&ctrl_reg2, 1);
   }
 
@@ -926,7 +922,7 @@ int32_t lis3mdl_data_format_set(const stmdev_ctx_t *ctx, lis3mdl_ble_t val)
 
   if (ret == 0)
   {
-    ctrl_reg4.ble = (uint8_t)val;
+    ctrl_reg4.ble = (uint8_t)val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG4, (uint8_t *)&ctrl_reg4, 1);
   }
 
@@ -1037,7 +1033,7 @@ int32_t lis3mdl_int_generation_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    int_cfg.ien = val;
+    int_cfg.ien = val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_INT_CFG, (uint8_t *)&int_cfg, 1);
   }
 
@@ -1085,7 +1081,7 @@ int32_t lis3mdl_int_notification_mode_set(const stmdev_ctx_t *ctx,
 
   if (ret == 0)
   {
-    int_cfg.lir = (uint8_t)val;
+    int_cfg.lir = (uint8_t)val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_INT_CFG, (uint8_t *)&int_cfg, 1);
   }
 
@@ -1146,7 +1142,7 @@ int32_t lis3mdl_int_polarity_set(const stmdev_ctx_t *ctx, lis3mdl_iea_t val)
 
   if (ret == 0)
   {
-    int_cfg.iea = (uint8_t)val;
+    int_cfg.iea = (uint8_t)val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_INT_CFG, (uint8_t *)&int_cfg, 1);
   }
 
@@ -1206,7 +1202,7 @@ int32_t lis3mdl_int_on_z_ax_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    int_cfg.zien = val;
+    int_cfg.zien = val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_INT_CFG, (uint8_t *)&int_cfg, 1);
   }
 
@@ -1252,7 +1248,7 @@ int32_t lis3mdl_int_on_y_ax_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    int_cfg.yien = val;
+    int_cfg.yien = val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_INT_CFG, (uint8_t *)&int_cfg, 1);
   }
 
@@ -1298,7 +1294,7 @@ int32_t lis3mdl_int_on_x_ax_set(const stmdev_ctx_t *ctx, uint8_t val)
 
   if (ret == 0)
   {
-    int_cfg.xien = val;
+    int_cfg.xien = val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_INT_CFG, (uint8_t *)&int_cfg, 1);
   }
 
@@ -1551,8 +1547,7 @@ int32_t lis3mdl_int_threshold_get(const stmdev_ctx_t *ctx, uint16_t *val)
 
   if (ret != 0) { return ret; }
 
-  *val = buff[1];
-  *val = (*val * 256U) +  buff[0];
+  *val = (uint16_t)(buff[0] | ((uint16_t)buff[1]));
 
   return ret;
 }
@@ -1587,7 +1582,7 @@ int32_t lis3mdl_spi_mode_set(const stmdev_ctx_t *ctx, lis3mdl_sim_t val)
 
   if (ret == 0)
   {
-    ctrl_reg3.sim = (uint8_t)val;
+    ctrl_reg3.sim = (uint8_t)val & 0x01U;
     ret = lis3mdl_write_reg(ctx, LIS3MDL_CTRL_REG3, (uint8_t *)&ctrl_reg3, 1);
   }
 
